@@ -23,6 +23,7 @@ python3 -m http.server 4173
 - `kontakt.html` — kontakt
 - `assets/styles.css` — fælles design og responsive regler
 - `assets/main.js` — fælles header/footer, mobilmenu, formularfeedback og jobfiltre
+- `assets/sub-z-logo.png` — officielt SUB-z-logo
 - `assets/hero-industrial.webp` — optimeret hero-billede
 
 Formularerne er frontend-demoer og skal kobles til en mailservice eller backend før publicering.

@@ -41,7 +41,7 @@ function renderHeader() {
     <header class="site-header">
       <div class="container nav-wrap">
         <a class="brand" href="index.html" aria-label="SUB-z forside">
-          <span class="brand-mark">S</span><span class="brand-name">SUB-z</span>
+          <img class="brand-logo" src="assets/sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104">
         </a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Åbn menu">${svgIcon('menu')}</button>
         <nav class="main-nav" id="main-nav" aria-label="Primær navigation">
@@ -59,8 +59,7 @@ function renderFooter() {
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a class="brand" href="index.html"><span class="brand-mark">S</span><span class="brand-name">SUB-z</span></a>
-            <p class="footer-tagline">Esprit de corps at work</p>
+            <a class="brand brand--footer" href="index.html"><img class="brand-logo" src="assets/sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104"></a>
           </div>
           <div class="footer-col">
             <h2>Kontakt</h2>
