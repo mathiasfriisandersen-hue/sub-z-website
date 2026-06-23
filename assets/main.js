@@ -24,34 +24,121 @@ function svgIcon(name) {
   return `<svg class="icon" aria-hidden="true" viewBox="0 0 24 24">${iconPaths[name] || iconPaths.arrow}</svg>`;
 }
 
-const pages = [
-  ['companies', 'For virksomheder', 'virksomheder.html'],
-  ['candidates', 'For kandidater', 'kandidater.html'],
-  ['services', 'Ydelser', 'ydelser.html'],
-  ['jobs', 'Ledige stillinger', 'stillinger.html'],
-  ['news', 'Nyheder', 'nyheder.html'],
-  ['contact', 'Kontakt', 'kontakt.html']
-];
+const pageFiles = {
+  home: { da: 'index.html', en: 'index.html', pl: 'index.html' },
+  companies: { da: 'virksomheder.html', en: 'companies.html', pl: 'firmy.html' },
+  candidates: { da: 'kandidater.html', en: 'candidates.html', pl: 'kandydaci.html' },
+  services: { da: 'ydelser.html', en: 'services.html', pl: 'uslugi.html' },
+  jobs: { da: 'stillinger.html', en: 'jobs.html', pl: 'oferty-pracy.html' },
+  news: { da: 'nyheder.html', en: 'news.html', pl: 'aktualnosci.html' },
+  contact: { da: 'kontakt.html', en: 'contact.html', pl: 'kontakt.html' }
+};
+
+const locale = ['en', 'pl'].includes(document.documentElement.lang) ? document.documentElement.lang : 'da';
+const currentPage = document.body.dataset.page || 'home';
+const assetBase = locale === 'da' ? 'assets/' : '../assets/';
+
+const translations = {
+  da: {
+    nav: { companies: 'For virksomheder', candidates: 'For kandidater', services: 'Ydelser', jobs: 'Ledige stillinger', news: 'Nyheder', contact: 'Kontakt' },
+    primaryNav: 'Primær navigation', languageNav: 'Vælg sprog', homeLabel: 'SUB-z forside', menuOpen: 'Åbn menu', menuClose: 'Luk menu',
+    footer: { contact: 'Kontakt', shortcuts: 'Genveje', privacy: 'Privatlivspolitik', cookies: 'Cookies' },
+    form: {
+      subjectCandidate: 'Ny kandidatprofil via SUB-z', subjectCompany: 'Ny bemandingsforespørgsel via SUB-z',
+      labels: { name: 'Navn', company: 'Virksomhed', phone: 'Telefon', email: 'Email', trade: 'Fagområde' },
+      candidateMessage: 'Jobønske og erfaring', companyMessage: 'Behov',
+      status: 'Dit mailprogram åbnes med oplysningerne udfyldt. Send mailen derfra for at færdiggøre henvendelsen.',
+      candidateEyebrow: 'Send din profil', companyEyebrow: 'Send en forespørgsel',
+      candidateTitle: 'Fortæl os om dig og dit fag', companyTitle: 'Fortæl os om jeres behov',
+      candidateLabel: 'Hvilken type job søger du, og hvilken erfaring har du?', companyLabel: 'Hvad har I brug for hjælp til?',
+      candidateSubmit: 'Send kandidatprofil', companySubmit: 'Send forespørgsel'
+    }
+  },
+  en: {
+    nav: { companies: 'For companies', candidates: 'For candidates', services: 'Services', jobs: 'Vacancies', news: 'News', contact: 'Contact' },
+    primaryNav: 'Primary navigation', languageNav: 'Choose language', homeLabel: 'SUB-z home', menuOpen: 'Open menu', menuClose: 'Close menu',
+    footer: { contact: 'Contact', shortcuts: 'Quick links', privacy: 'Privacy policy', cookies: 'Cookies' },
+    form: {
+      subjectCandidate: 'New candidate profile via SUB-z', subjectCompany: 'New staffing enquiry via SUB-z',
+      labels: { name: 'Name', company: 'Company', phone: 'Phone', email: 'Email', trade: 'Field' },
+      candidateMessage: 'Job preferences and experience', companyMessage: 'Staffing need',
+      status: 'Your email application opens with the information filled in. Send the email there to complete your enquiry.',
+      candidateEyebrow: 'Send your profile', companyEyebrow: 'Send an enquiry',
+      candidateTitle: 'Tell us about you and your trade', companyTitle: 'Tell us what you need',
+      candidateLabel: 'What type of work are you looking for, and what experience do you have?', companyLabel: 'What do you need help with?',
+      candidateSubmit: 'Send candidate profile', companySubmit: 'Send enquiry'
+    }
+  },
+  pl: {
+    nav: { companies: 'Dla firm', candidates: 'Dla kandydatów', services: 'Usługi', jobs: 'Oferty pracy', news: 'Aktualności', contact: 'Kontakt' },
+    primaryNav: 'Główna nawigacja', languageNav: 'Wybierz język', homeLabel: 'Strona główna SUB-z', menuOpen: 'Otwórz menu', menuClose: 'Zamknij menu',
+    footer: { contact: 'Kontakt', shortcuts: 'Na skróty', privacy: 'Polityka prywatności', cookies: 'Pliki cookie' },
+    form: {
+      subjectCandidate: 'Nowy profil kandydata przez SUB-z', subjectCompany: 'Nowe zapytanie o pracowników przez SUB-z',
+      labels: { name: 'Imię i nazwisko', company: 'Firma', phone: 'Telefon', email: 'Email', trade: 'Branża' },
+      candidateMessage: 'Oczekiwania zawodowe i doświadczenie', companyMessage: 'Zapotrzebowanie',
+      status: 'Program pocztowy otworzy się z uzupełnionymi danymi. Wyślij wiadomość, aby zakończyć zgłoszenie.',
+      candidateEyebrow: 'Wyślij swój profil', companyEyebrow: 'Wyślij zapytanie',
+      candidateTitle: 'Opowiedz nam o sobie i swoim zawodzie', companyTitle: 'Opisz swoje zapotrzebowanie',
+      candidateLabel: 'Jakiej pracy szukasz i jakie masz doświadczenie?', companyLabel: 'W czym możemy pomóc?',
+      candidateSubmit: 'Wyślij profil kandydata', companySubmit: 'Wyślij zapytanie'
+    }
+  }
+};
+
+const copy = translations[locale];
+const pages = ['companies', 'candidates', 'services', 'jobs', 'news', 'contact'].map(id => [id, copy.nav[id], pageFiles[id][locale]]);
+
+function languageHref(targetLocale) {
+  const file = pageFiles[currentPage][targetLocale];
+  if (locale === 'da') return targetLocale === 'da' ? file : `${targetLocale}/${file}`;
+  if (targetLocale === 'da') return `../${file}`;
+  return targetLocale === locale ? file : `../${targetLocale}/${file}`;
+}
+
+function localizedContactHref() {
+  const file = pageFiles.contact[locale];
+  if (['candidates', 'jobs'].includes(currentPage)) return `${file}?type=kandidat`;
+  if (['companies', 'services'].includes(currentPage)) return `${file}?type=virksomhed`;
+  return file;
+}
+
+function setupLanguageMetadata() {
+  ['da', 'en', 'pl'].forEach(lang => {
+    const link = document.createElement('link');
+    link.rel = 'alternate';
+    link.hreflang = lang;
+    link.href = new URL(languageHref(lang), window.location.href).href;
+    document.head.appendChild(link);
+  });
+  const fallback = document.createElement('link');
+  fallback.rel = 'alternate';
+  fallback.hreflang = 'x-default';
+  fallback.href = new URL(languageHref('da'), window.location.href).href;
+  document.head.appendChild(fallback);
+}
 
 function renderHeader() {
-  const page = document.body.dataset.page || 'home';
   const links = pages.map(([id, label, href]) => {
     let targetHref = href;
-    if (id === 'contact' && ['candidates', 'jobs'].includes(page)) targetHref = 'kontakt.html?type=kandidat';
-    if (id === 'contact' && ['companies', 'services'].includes(page)) targetHref = 'kontakt.html?type=virksomhed';
-    return `<a class="nav-link${page === id ? ' is-active' : ''}" href="${targetHref}"${page === id ? ' aria-current="page"' : ''}>${label}</a>`;
+    if (id === 'contact') targetHref = localizedContactHref();
+    return `<a class="nav-link${currentPage === id ? ' is-active' : ''}" href="${targetHref}"${currentPage === id ? ' aria-current="page"' : ''}>${label}</a>`;
   }).join('');
+
+  const languageLinks = ['da', 'en', 'pl'].map(lang =>
+    `<a class="lang-link${locale === lang ? ' is-active' : ''}" href="${languageHref(lang)}" lang="${lang}"${locale === lang ? ' aria-current="true"' : ''}>${lang.toUpperCase()}</a>`
+  ).join('');
 
   document.querySelector('[data-site-header]').innerHTML = `
     <header class="site-header">
       <div class="container nav-wrap">
-        <a class="brand" href="index.html" aria-label="SUB-z forside">
-          <img class="brand-logo" src="assets/sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104">
+        <a class="brand" href="${pageFiles.home[locale]}" aria-label="${copy.homeLabel}">
+          <img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104">
         </a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Åbn menu">${svgIcon('menu')}</button>
-        <nav class="main-nav" id="main-nav" aria-label="Primær navigation">
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="${copy.menuOpen}">${svgIcon('menu')}</button>
+        <nav class="main-nav" id="main-nav" aria-label="${copy.primaryNav}">
           ${links}
-          <a class="lang-link" href="index.html?lang=en" lang="en">English</a>
+          <div class="language-switch" aria-label="${copy.languageNav}">${languageLinks}</div>
           <a class="btn btn--primary nav-phone" href="tel:+4540601253">${svgIcon('phone')} +45 40 60 12 53</a>
         </nav>
       </div>
@@ -59,27 +146,26 @@ function renderHeader() {
 }
 
 function renderFooter() {
-  const page = document.body.dataset.page || 'home';
-  const contactHref = ['candidates', 'jobs'].includes(page) ? 'kontakt.html?type=kandidat' : ['companies', 'services'].includes(page) ? 'kontakt.html?type=virksomhed' : 'kontakt.html';
+  const contactHref = localizedContactHref();
   document.querySelector('[data-site-footer]').innerHTML = `
     <footer class="site-footer">
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a class="brand brand--footer" href="index.html"><img class="brand-logo" src="assets/sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104"></a>
+            <a class="brand brand--footer" href="${pageFiles.home[locale]}"><img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104"></a>
           </div>
           <div class="footer-col">
-            <h2>Kontakt</h2>
+            <h2>${copy.footer.contact}</h2>
             <address>Vesterballevej 5<br>7000 Fredericia<br><a href="tel:+4540601253">+45 40 60 12 53</a><br><a href="mailto:support@sub-z.dk">support@sub-z.dk</a></address>
           </div>
           <div class="footer-col">
-            <h2>Genveje</h2>
-            <ul><li><a href="virksomheder.html">For virksomheder</a></li><li><a href="kandidater.html">For kandidater</a></li><li><a href="stillinger.html">Ledige stillinger</a></li><li><a href="${contactHref}">Kontakt</a></li></ul>
+            <h2>${copy.footer.shortcuts}</h2>
+            <ul><li><a href="${pageFiles.companies[locale]}">${copy.nav.companies}</a></li><li><a href="${pageFiles.candidates[locale]}">${copy.nav.candidates}</a></li><li><a href="${pageFiles.jobs[locale]}">${copy.nav.jobs}</a></li><li><a href="${contactHref}">${copy.nav.contact}</a></li></ul>
           </div>
         </div>
         <div class="footer-bottom">
           <span>© <span data-year></span> SUB-z · CVR 44116935</span>
-          <div class="footer-links"><a href="#">Privatlivspolitik</a><a href="#">Cookies</a><a href="${contactHref}">Kontakt</a><a href="index.html?lang=en" lang="en">English</a></div>
+          <div class="footer-links"><a href="#">${copy.footer.privacy}</a><a href="#">${copy.footer.cookies}</a><a href="${contactHref}">${copy.nav.contact}</a><div class="language-switch">${['da', 'en', 'pl'].map(lang => `<a href="${languageHref(lang)}" lang="${lang}">${lang.toUpperCase()}</a>`).join('')}</div></div>
         </div>
       </div>
     </footer>`;
@@ -92,7 +178,7 @@ function setupMenu() {
   button.addEventListener('click', () => {
     const open = button.getAttribute('aria-expanded') === 'true';
     button.setAttribute('aria-expanded', String(!open));
-    button.setAttribute('aria-label', open ? 'Åbn menu' : 'Luk menu');
+    button.setAttribute('aria-label', open ? copy.menuOpen : copy.menuClose);
     button.innerHTML = svgIcon(open ? 'menu' : 'close');
     nav.classList.toggle('is-open', !open);
     document.body.classList.toggle('menu-open', !open);
@@ -106,21 +192,17 @@ function setupForms() {
       const status = form.querySelector('.form-status');
       const formData = new FormData(form);
       const candidate = form.dataset.context === 'kandidat';
-      const subject = candidate ? 'Ny kandidatprofil via SUB-z' : 'Ny bemandingsforespørgsel via SUB-z';
+      const subject = candidate ? copy.form.subjectCandidate : copy.form.subjectCompany;
       const labels = {
-        name: 'Navn',
-        company: 'Virksomhed',
-        phone: 'Telefon',
-        email: 'Email',
-        trade: 'Fagområde',
-        message: candidate ? 'Jobønske og erfaring' : 'Behov'
+        ...copy.form.labels,
+        message: candidate ? copy.form.candidateMessage : copy.form.companyMessage
       };
       const body = Array.from(formData.entries())
         .filter(([, value]) => String(value).trim())
         .map(([key, value]) => `${labels[key] || key}: ${value}`)
         .join('\n\n');
       const mailto = `mailto:${TEST_FORM_RECIPIENT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      if (status) status.textContent = 'Dit mailprogram åbnes med oplysningerne udfyldt. Send mailen derfra for at færdiggøre henvendelsen.';
+      if (status) status.textContent = copy.form.status;
       window.location.href = mailto;
     });
   });
@@ -150,10 +232,10 @@ function setupContactFormContext() {
     tradeInput.required = candidate;
     companyInput.disabled = candidate;
     tradeInput.disabled = !candidate;
-    eyebrow.textContent = candidate ? 'Send din profil' : 'Send en forespørgsel';
-    title.textContent = candidate ? 'Fortæl os om dig og dit fag' : 'Fortæl os om jeres behov';
-    messageLabel.textContent = candidate ? 'Hvilken type job søger du, og hvilken erfaring har du?' : 'Hvad har I brug for hjælp til?';
-    submit.innerHTML = `${candidate ? 'Send kandidatprofil' : 'Send forespørgsel'} ${svgIcon('arrow')}`;
+    eyebrow.textContent = candidate ? copy.form.candidateEyebrow : copy.form.companyEyebrow;
+    title.textContent = candidate ? copy.form.candidateTitle : copy.form.companyTitle;
+    messageLabel.textContent = candidate ? copy.form.candidateLabel : copy.form.companyLabel;
+    submit.innerHTML = `${candidate ? copy.form.candidateSubmit : copy.form.companySubmit} ${svgIcon('arrow')}`;
     buttons.forEach(button => {
       const active = button.dataset.contactType === (candidate ? 'kandidat' : 'virksomhed');
       button.classList.toggle('is-active', active);
@@ -197,6 +279,7 @@ function setupJobFilter() {
 
 renderHeader();
 renderFooter();
+setupLanguageMetadata();
 document.querySelectorAll('[data-icon]').forEach(node => { node.innerHTML = svgIcon(node.dataset.icon); });
 document.querySelectorAll('[data-year]').forEach(node => { node.textContent = new Date().getFullYear(); });
 setupMenu();

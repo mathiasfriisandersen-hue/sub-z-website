@@ -14,6 +14,10 @@ python3 -m http.server 4173
 
 ## Struktur
 
+- Dansk ligger i projektets rodmappe.
+- Engelsk ligger i `en/`.
+- Polsk ligger i `pl/`.
+- Sprogskiftet bevarer den tilsvarende side på tværs af alle tre sprog.
 - `index.html` — forside
 - `virksomheder.html` — virksomheder
 - `kandidater.html` — kandidater
