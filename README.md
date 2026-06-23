@@ -26,4 +26,4 @@ python3 -m http.server 4173
 - `assets/sub-z-logo.png` — officielt SUB-z-logo
 - `assets/hero-industrial.webp` — optimeret hero-billede
 
-Formularerne er frontend-demoer og skal kobles til en mailservice eller backend før publicering.
+Formularerne kører midlertidigt i testtilstand og åbner brugerens mailprogram med en udfyldt mail til `mathiasfriisandersen@gmail.com`. Automatisk afsendelse kræver fortsat en mailservice eller backend.

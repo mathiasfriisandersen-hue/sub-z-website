@@ -18,6 +18,8 @@ const iconPaths = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'
 };
 
+const TEST_FORM_RECIPIENT = 'mathiasfriisandersen@gmail.com';
+
 function svgIcon(name) {
   return `<svg class="icon" aria-hidden="true" viewBox="0 0 24 24">${iconPaths[name] || iconPaths.arrow}</svg>`;
 }
@@ -102,8 +104,24 @@ function setupForms() {
     form.addEventListener('submit', event => {
       event.preventDefault();
       const status = form.querySelector('.form-status');
-      if (status) status.textContent = 'Tak — din besked er klar til at blive sendt, når formularen kobles til en mailservice.';
-      form.reset();
+      const formData = new FormData(form);
+      const candidate = form.dataset.context === 'kandidat';
+      const subject = candidate ? 'Ny kandidatprofil via SUB-z' : 'Ny bemandingsforespørgsel via SUB-z';
+      const labels = {
+        name: 'Navn',
+        company: 'Virksomhed',
+        phone: 'Telefon',
+        email: 'Email',
+        trade: 'Fagområde',
+        message: candidate ? 'Jobønske og erfaring' : 'Behov'
+      };
+      const body = Array.from(formData.entries())
+        .filter(([, value]) => String(value).trim())
+        .map(([key, value]) => `${labels[key] || key}: ${value}`)
+        .join('\n\n');
+      const mailto = `mailto:${TEST_FORM_RECIPIENT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      if (status) status.textContent = 'Dit mailprogram åbnes med oplysningerne udfyldt. Send mailen derfra for at færdiggøre henvendelsen.';
+      window.location.href = mailto;
     });
   });
 }
