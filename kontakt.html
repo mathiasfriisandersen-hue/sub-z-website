@@ -15,12 +15,20 @@
       <div class="contact-detail"><span data-icon="pin"></span><div><small>Adresse</small><address>Vesterballevej 5, 7000 Fredericia</address></div></div>
       <div class="contact-detail"><span data-icon="briefcase"></span><div><small>CVR</small><span>44116935</span></div></div>
     </div><div class="hours"><h3>Åbningstider</h3><p>Mandag – Torsdag: 07.30 – 16.00<br>Fredag: 07.30 – 15.00</p></div></div>
-    <form class="contact-form-card" data-demo-form><p class="eyebrow">Send en besked</p><div class="form-grid">
+    <form class="contact-form-card" data-demo-form data-contact-context>
+      <div class="contact-type-switch" role="group" aria-label="Vælg kontaktårsag">
+        <button class="contact-type-button" type="button" data-contact-type="virksomhed">Jeg søger medarbejdere</button>
+        <button class="contact-type-button" type="button" data-contact-type="kandidat">Jeg søger job</button>
+      </div>
+      <p class="eyebrow" data-form-eyebrow>Send en forespørgsel</p>
+      <h2 class="contact-form-title" data-form-title>Fortæl os om jeres behov</h2>
+      <div class="form-grid">
       <div class="field"><label for="contact-name">Navn</label><input id="contact-name" name="name" autocomplete="name" required></div>
-      <div class="field"><label for="contact-company">Virksomhed</label><input id="contact-company" name="company" autocomplete="organization"></div>
+      <div class="field" data-company-field><label for="contact-company">Virksomhed</label><input id="contact-company" name="company" autocomplete="organization"></div>
+      <div class="field" data-candidate-field hidden><label for="contact-trade">Fagområde</label><select id="contact-trade" name="trade"><option value="">Vælg fagområde</option><option>Byg</option><option>Anlæg</option><option>Energi</option><option>Industri</option><option>Andet</option></select></div>
       <div class="field"><label for="contact-phone">Telefon</label><input id="contact-phone" name="phone" type="tel" autocomplete="tel" required></div>
       <div class="field"><label for="contact-email">Email</label><input id="contact-email" name="email" type="email" autocomplete="email" required></div>
-      <div class="field field--full"><label for="contact-message">Hvad kan vi hjælpe med?</label><textarea id="contact-message" name="message" required></textarea></div>
-    </div><div class="form-actions"><button class="btn btn--primary" type="submit">Send besked <span data-icon="arrow"></span></button><span class="form-status" role="status"></span></div></form>
+      <div class="field field--full"><label for="contact-message" data-message-label>Hvad har I brug for hjælp til?</label><textarea id="contact-message" name="message" required></textarea></div>
+    </div><div class="form-actions"><button class="btn btn--primary" type="submit" data-submit-label>Send forespørgsel <span data-icon="arrow"></span></button><span class="form-status" role="status"></span></div></form>
   </div></section>
 </main><div data-site-footer></div></body></html>

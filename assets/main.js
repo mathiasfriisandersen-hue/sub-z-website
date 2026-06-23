@@ -33,9 +33,12 @@ const pages = [
 
 function renderHeader() {
   const page = document.body.dataset.page || 'home';
-  const links = pages.map(([id, label, href]) =>
-    `<a class="nav-link${page === id ? ' is-active' : ''}" href="${href}"${page === id ? ' aria-current="page"' : ''}>${label}</a>`
-  ).join('');
+  const links = pages.map(([id, label, href]) => {
+    let targetHref = href;
+    if (id === 'contact' && ['candidates', 'jobs'].includes(page)) targetHref = 'kontakt.html?type=kandidat';
+    if (id === 'contact' && ['companies', 'services'].includes(page)) targetHref = 'kontakt.html?type=virksomhed';
+    return `<a class="nav-link${page === id ? ' is-active' : ''}" href="${targetHref}"${page === id ? ' aria-current="page"' : ''}>${label}</a>`;
+  }).join('');
 
   document.querySelector('[data-site-header]').innerHTML = `
     <header class="site-header">
@@ -54,6 +57,8 @@ function renderHeader() {
 }
 
 function renderFooter() {
+  const page = document.body.dataset.page || 'home';
+  const contactHref = ['candidates', 'jobs'].includes(page) ? 'kontakt.html?type=kandidat' : ['companies', 'services'].includes(page) ? 'kontakt.html?type=virksomhed' : 'kontakt.html';
   document.querySelector('[data-site-footer]').innerHTML = `
     <footer class="site-footer">
       <div class="container">
@@ -67,12 +72,12 @@ function renderFooter() {
           </div>
           <div class="footer-col">
             <h2>Genveje</h2>
-            <ul><li><a href="virksomheder.html">For virksomheder</a></li><li><a href="kandidater.html">For kandidater</a></li><li><a href="stillinger.html">Ledige stillinger</a></li><li><a href="kontakt.html">Kontakt</a></li></ul>
+            <ul><li><a href="virksomheder.html">For virksomheder</a></li><li><a href="kandidater.html">For kandidater</a></li><li><a href="stillinger.html">Ledige stillinger</a></li><li><a href="${contactHref}">Kontakt</a></li></ul>
           </div>
         </div>
         <div class="footer-bottom">
           <span>© <span data-year></span> SUB-z · CVR 44116935</span>
-          <div class="footer-links"><a href="#">Privatlivspolitik</a><a href="#">Cookies</a><a href="kontakt.html">Kontakt</a><a href="index.html?lang=en" lang="en">English</a></div>
+          <div class="footer-links"><a href="#">Privatlivspolitik</a><a href="#">Cookies</a><a href="${contactHref}">Kontakt</a><a href="index.html?lang=en" lang="en">English</a></div>
         </div>
       </div>
     </footer>`;
@@ -103,6 +108,52 @@ function setupForms() {
   });
 }
 
+function setupContactFormContext() {
+  const form = document.querySelector('[data-contact-context]');
+  if (!form) return;
+
+  const buttons = form.querySelectorAll('[data-contact-type]');
+  const companyField = form.querySelector('[data-company-field]');
+  const candidateField = form.querySelector('[data-candidate-field]');
+  const companyInput = form.querySelector('#contact-company');
+  const tradeInput = form.querySelector('#contact-trade');
+  const eyebrow = form.querySelector('[data-form-eyebrow]');
+  const title = form.querySelector('[data-form-title]');
+  const messageLabel = form.querySelector('[data-message-label]');
+  const submit = form.querySelector('[data-submit-label]');
+  const status = form.querySelector('.form-status');
+
+  const setContext = (type, updateUrl = false) => {
+    const candidate = type === 'kandidat';
+    form.dataset.context = candidate ? 'kandidat' : 'virksomhed';
+    companyField.hidden = candidate;
+    candidateField.hidden = !candidate;
+    companyInput.required = !candidate;
+    tradeInput.required = candidate;
+    companyInput.disabled = candidate;
+    tradeInput.disabled = !candidate;
+    eyebrow.textContent = candidate ? 'Send din profil' : 'Send en forespørgsel';
+    title.textContent = candidate ? 'Fortæl os om dig og dit fag' : 'Fortæl os om jeres behov';
+    messageLabel.textContent = candidate ? 'Hvilken type job søger du, og hvilken erfaring har du?' : 'Hvad har I brug for hjælp til?';
+    submit.innerHTML = `${candidate ? 'Send kandidatprofil' : 'Send forespørgsel'} ${svgIcon('arrow')}`;
+    buttons.forEach(button => {
+      const active = button.dataset.contactType === (candidate ? 'kandidat' : 'virksomhed');
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    if (status) status.textContent = '';
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('type', candidate ? 'kandidat' : 'virksomhed');
+      window.history.replaceState({}, '', url);
+    }
+  };
+
+  const requestedType = new URLSearchParams(window.location.search).get('type');
+  setContext(requestedType === 'kandidat' ? 'kandidat' : 'virksomhed');
+  buttons.forEach(button => button.addEventListener('click', () => setContext(button.dataset.contactType, true)));
+}
+
 function setupJobFilter() {
   const list = document.querySelector('[data-job-list]');
   if (!list) return;
@@ -131,5 +182,6 @@ renderFooter();
 document.querySelectorAll('[data-icon]').forEach(node => { node.innerHTML = svgIcon(node.dataset.icon); });
 document.querySelectorAll('[data-year]').forEach(node => { node.textContent = new Date().getFullYear(); });
 setupMenu();
+setupContactFormContext();
 setupForms();
 setupJobFilter();
