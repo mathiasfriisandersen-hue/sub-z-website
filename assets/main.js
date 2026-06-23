@@ -31,7 +31,8 @@ const pageFiles = {
   services: { da: 'ydelser.html', en: 'services.html', pl: 'uslugi.html' },
   jobs: { da: 'stillinger.html', en: 'jobs.html', pl: 'oferty-pracy.html' },
   news: { da: 'nyheder.html', en: 'news.html', pl: 'aktualnosci.html' },
-  contact: { da: 'kontakt.html', en: 'contact.html', pl: 'kontakt.html' }
+  contact: { da: 'kontakt.html', en: 'contact.html', pl: 'kontakt.html' },
+  cookies: { da: 'cookies.html', en: 'cookies.html', pl: 'cookies.html' }
 };
 
 const locale = ['en', 'pl'].includes(document.documentElement.lang) ? document.documentElement.lang : 'da';
@@ -43,6 +44,7 @@ const translations = {
     nav: { companies: 'For virksomheder', candidates: 'For kandidater', services: 'Ydelser', jobs: 'Ledige stillinger', news: 'Nyheder', contact: 'Kontakt' },
     primaryNav: 'Primær navigation', languageNav: 'Vælg sprog', homeLabel: 'SUB-z forside', menuOpen: 'Åbn menu', menuClose: 'Luk menu',
     footer: { contact: 'Kontakt', shortcuts: 'Genveje', privacy: 'Privatlivspolitik', cookies: 'Cookies' },
+    cookieBanner: { title: 'Dit valg om cookies', text: 'SUB-z bruger nødvendig lokal lagring til at huske dit valg. Der er i øjeblikket ingen analyse- eller marketingcookies på siden.', necessary: 'Kun nødvendige', accept: 'Tillad alle', details: 'Læs cookiepolitik' },
     form: {
       subjectCandidate: 'Ny kandidatprofil via SUB-z', subjectCompany: 'Ny bemandingsforespørgsel via SUB-z',
       labels: { name: 'Navn', company: 'Virksomhed', phone: 'Telefon', email: 'Email', trade: 'Fagområde' },
@@ -58,6 +60,7 @@ const translations = {
     nav: { companies: 'For companies', candidates: 'For candidates', services: 'Services', jobs: 'Vacancies', news: 'News', contact: 'Contact' },
     primaryNav: 'Primary navigation', languageNav: 'Choose language', homeLabel: 'SUB-z home', menuOpen: 'Open menu', menuClose: 'Close menu',
     footer: { contact: 'Contact', shortcuts: 'Quick links', privacy: 'Privacy policy', cookies: 'Cookies' },
+    cookieBanner: { title: 'Your cookie choices', text: 'SUB-z uses necessary local storage to remember your choice. The website currently has no analytics or marketing cookies.', necessary: 'Necessary only', accept: 'Allow all', details: 'Read cookie policy' },
     form: {
       subjectCandidate: 'New candidate profile via SUB-z', subjectCompany: 'New staffing enquiry via SUB-z',
       labels: { name: 'Name', company: 'Company', phone: 'Phone', email: 'Email', trade: 'Field' },
@@ -73,6 +76,7 @@ const translations = {
     nav: { companies: 'Dla firm', candidates: 'Dla kandydatów', services: 'Usługi', jobs: 'Oferty pracy', news: 'Aktualności', contact: 'Kontakt' },
     primaryNav: 'Główna nawigacja', languageNav: 'Wybierz język', homeLabel: 'Strona główna SUB-z', menuOpen: 'Otwórz menu', menuClose: 'Zamknij menu',
     footer: { contact: 'Kontakt', shortcuts: 'Na skróty', privacy: 'Polityka prywatności', cookies: 'Pliki cookie' },
+    cookieBanner: { title: 'Twój wybór dotyczący plików cookie', text: 'SUB-z korzysta z niezbędnej pamięci lokalnej, aby zapamiętać Twój wybór. Obecnie strona nie używa analitycznych ani marketingowych plików cookie.', necessary: 'Tylko niezbędne', accept: 'Zezwól na wszystkie', details: 'Przeczytaj politykę cookie' },
     form: {
       subjectCandidate: 'Nowy profil kandydata przez SUB-z', subjectCompany: 'Nowe zapytanie o pracowników przez SUB-z',
       labels: { name: 'Imię i nazwisko', company: 'Firma', phone: 'Telefon', email: 'Email', trade: 'Branża' },
@@ -116,6 +120,46 @@ function setupLanguageMetadata() {
   fallback.hreflang = 'x-default';
   fallback.href = new URL(languageHref('da'), window.location.href).href;
   document.head.appendChild(fallback);
+}
+
+function setupCookieBanner() {
+  const storageKey = 'subz_cookie_consent_v1';
+  const resetButton = document.querySelector('[data-reset-cookie]');
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      try { window.localStorage.removeItem(storageKey); } catch (error) { /* No persistent storage available. */ }
+      window.location.reload();
+    });
+  }
+  try {
+    if (window.localStorage.getItem(storageKey)) return;
+  } catch (error) {
+    // The banner remains available when local storage is blocked.
+  }
+
+  const banner = document.createElement('section');
+  banner.className = 'cookie-banner';
+  banner.setAttribute('role', 'dialog');
+  banner.setAttribute('aria-labelledby', 'cookie-banner-title');
+  banner.innerHTML = `
+    <div class="cookie-banner__content">
+      <h2 id="cookie-banner-title">${copy.cookieBanner.title}</h2>
+      <p>${copy.cookieBanner.text} <a href="${pageFiles.cookies[locale]}">${copy.cookieBanner.details}</a></p>
+    </div>
+    <div class="cookie-banner__actions">
+      <button class="btn btn--outline" type="button" data-cookie-choice="necessary">${copy.cookieBanner.necessary}</button>
+      <button class="btn btn--primary" type="button" data-cookie-choice="all">${copy.cookieBanner.accept}</button>
+    </div>`;
+
+  banner.querySelectorAll('[data-cookie-choice]').forEach(button => {
+    button.addEventListener('click', () => {
+      const consent = { choice: button.dataset.cookieChoice, version: 1, updated: new Date().toISOString() };
+      try { window.localStorage.setItem(storageKey, JSON.stringify(consent)); } catch (error) { /* No persistent storage available. */ }
+      window.dispatchEvent(new CustomEvent('subz:cookie-consent', { detail: consent }));
+      banner.remove();
+    });
+  });
+  document.body.appendChild(banner);
 }
 
 function renderHeader() {
@@ -165,7 +209,7 @@ function renderFooter() {
         </div>
         <div class="footer-bottom">
           <span>© <span data-year></span> SUB-z · CVR 44116935</span>
-          <div class="footer-links"><a href="#">${copy.footer.privacy}</a><a href="#">${copy.footer.cookies}</a><a href="${contactHref}">${copy.nav.contact}</a><div class="language-switch">${['da', 'en', 'pl'].map(lang => `<a href="${languageHref(lang)}" lang="${lang}">${lang.toUpperCase()}</a>`).join('')}</div></div>
+          <div class="footer-links"><a href="#">${copy.footer.privacy}</a><a href="${pageFiles.cookies[locale]}">${copy.footer.cookies}</a><a href="${contactHref}">${copy.nav.contact}</a><div class="language-switch">${['da', 'en', 'pl'].map(lang => `<a href="${languageHref(lang)}" lang="${lang}">${lang.toUpperCase()}</a>`).join('')}</div></div>
         </div>
       </div>
     </footer>`;
@@ -280,6 +324,7 @@ function setupJobFilter() {
 renderHeader();
 renderFooter();
 setupLanguageMetadata();
+setupCookieBanner();
 document.querySelectorAll('[data-icon]').forEach(node => { node.innerHTML = svgIcon(node.dataset.icon); });
 document.querySelectorAll('[data-year]').forEach(node => { node.textContent = new Date().getFullYear(); });
 setupMenu();
