@@ -27,4 +27,6 @@ python3 -m http.server 4173
 - `assets/hero-industrial.avif` — primært, komprimeret hero-billede
 - `assets/hero-industrial.webp` — optimeret hero-billede
 
+Hero-billedet leveres responsivt i 960, 1440 og 1920 px, så browseren kun henter den størrelse, den aktuelle skærm har brug for.
+
 Formularerne kører midlertidigt i testtilstand og åbner brugerens mailprogram med en udfyldt mail til `mathiasfriisandersen@gmail.com`. Automatisk afsendelse kræver fortsat en mailservice eller backend.
