@@ -167,7 +167,7 @@ function renderHeader() {
     <header class="site-header">
       <div class="container nav-wrap">
         <a class="brand" href="./" aria-label="${copy.homeLabel}">
-          <img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104">
+          <img class="brand-logo" src="${assetBase}sub-z-logo.png?v=20260624-2" alt="SUB-z — Esprit de corps at work" width="484" height="94">
         </a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="${copy.menuOpen}">${svgIcon('menu')}</button>
         <nav class="main-nav" id="main-nav" aria-label="${copy.primaryNav}">
@@ -186,7 +186,7 @@ function renderFooter() {
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a class="brand brand--footer" href="./"><img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104"></a>
+            <a class="brand brand--footer" href="./"><img class="brand-logo" src="${assetBase}sub-z-logo.png?v=20260624-2" alt="SUB-z — Esprit de corps at work" width="484" height="94"></a>
           </div>
           <div class="footer-col">
             <h2>${copy.footer.contact}</h2>
