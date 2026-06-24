@@ -150,6 +150,7 @@ p { margin: 0; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.service-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
 .choice-card { min-height: 330px; display: flex; flex-direction: column; align-items: flex-start; padding: clamp(2rem, 4vw, 3.25rem); border-radius: var(--radius-lg); }
 .choice-card:first-child { background: var(--green-950); color: var(--white); }
 .choice-card:last-child { background: var(--lime); color: var(--green-950); }
@@ -347,7 +348,7 @@ p { margin: 0; }
   .hero-copy h1 { font-size: clamp(2.45rem, 11vw, 3.2rem); }
   .hero-media { min-height: 0; aspect-ratio: 4 / 3; }
   .hero-note { right: 1rem; bottom: 1rem; left: 1rem; }
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4, .service-grid { grid-template-columns: 1fr; }
   .choice-card { min-height: 300px; }
   .service-card { min-height: 320px; }
   .form-grid { grid-template-columns: 1fr; }
