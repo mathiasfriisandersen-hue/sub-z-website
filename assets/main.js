@@ -94,6 +94,11 @@ const copy = translations[locale];
 const pages = ['companies', 'candidates', 'services', 'jobs', 'news', 'contact'].map(id => [id, copy.nav[id], pageFiles[id][locale]]);
 
 function languageHref(targetLocale) {
+  if (currentPage === 'home') {
+    if (locale === 'da') return targetLocale === 'da' ? './' : `${targetLocale}/`;
+    if (targetLocale === 'da') return '../';
+    return targetLocale === locale ? './' : `../${targetLocale}/`;
+  }
   const file = pageFiles[currentPage][targetLocale];
   if (locale === 'da') return targetLocale === 'da' ? file : `${targetLocale}/${file}`;
   if (targetLocale === 'da') return `../${file}`;
@@ -105,21 +110,6 @@ function localizedContactHref() {
   if (['candidates', 'jobs'].includes(currentPage)) return `${file}?type=kandidat`;
   if (['companies', 'services'].includes(currentPage)) return `${file}?type=virksomhed`;
   return file;
-}
-
-function setupLanguageMetadata() {
-  ['da', 'en', 'pl'].forEach(lang => {
-    const link = document.createElement('link');
-    link.rel = 'alternate';
-    link.hreflang = lang;
-    link.href = new URL(languageHref(lang), window.location.href).href;
-    document.head.appendChild(link);
-  });
-  const fallback = document.createElement('link');
-  fallback.rel = 'alternate';
-  fallback.hreflang = 'x-default';
-  fallback.href = new URL(languageHref('da'), window.location.href).href;
-  document.head.appendChild(fallback);
 }
 
 function setupCookieBanner() {
@@ -176,7 +166,7 @@ function renderHeader() {
   document.querySelector('[data-site-header]').innerHTML = `
     <header class="site-header">
       <div class="container nav-wrap">
-        <a class="brand" href="${pageFiles.home[locale]}" aria-label="${copy.homeLabel}">
+        <a class="brand" href="./" aria-label="${copy.homeLabel}">
           <img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104">
         </a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="${copy.menuOpen}">${svgIcon('menu')}</button>
@@ -196,7 +186,7 @@ function renderFooter() {
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a class="brand brand--footer" href="${pageFiles.home[locale]}"><img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104"></a>
+            <a class="brand brand--footer" href="./"><img class="brand-logo" src="${assetBase}sub-z-logo.png" alt="SUB-z — Esprit de corps at work" width="514" height="104"></a>
           </div>
           <div class="footer-col">
             <h2>${copy.footer.contact}</h2>
@@ -323,7 +313,6 @@ function setupJobFilter() {
 
 renderHeader();
 renderFooter();
-setupLanguageMetadata();
 setupCookieBanner();
 document.querySelectorAll('[data-icon]').forEach(node => { node.innerHTML = svgIcon(node.dataset.icon); });
 document.querySelectorAll('[data-year]').forEach(node => { node.textContent = new Date().getFullYear(); });
