@@ -18,6 +18,41 @@ const iconPaths = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'
 };
 
+function isolateFastBotsIframeStorage() {
+  const originalCreateElement = Document.prototype.createElement;
+  const originalAppendChild = Node.prototype.appendChild;
+
+  Document.prototype.createElement = function createElementWithFastBotsIsolation(tagName, options) {
+    const element = originalCreateElement.call(this, tagName, options);
+    if (String(tagName).toLowerCase() === 'iframe') {
+      try {
+        element.credentialless = true;
+        element.setAttribute('credentialless', '');
+      } catch (error) {
+        // Unsupported browsers simply ignore the isolation attribute.
+      }
+    }
+    return element;
+  };
+
+  Node.prototype.appendChild = function appendChildWithFastBotsIsolation(node) {
+    try {
+      if (
+        node instanceof HTMLIFrameElement &&
+        node.src.includes('app.fastbots.ai/embed/')
+      ) {
+        node.credentialless = true;
+        node.setAttribute('credentialless', '');
+      }
+    } catch (error) {
+      // Keep the third-party widget loading even if the browser blocks this attribute.
+    }
+    return originalAppendChild.call(this, node);
+  };
+}
+
+isolateFastBotsIframeStorage();
+
 const TEST_FORM_RECIPIENT = 'mathiasfriisandersen@gmail.com';
 
 function svgIcon(name) {
